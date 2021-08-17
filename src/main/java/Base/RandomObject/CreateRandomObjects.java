@@ -3,7 +3,11 @@ package Base.RandomObject;
 import Base.DBO.Address;
 import Base.DBO.Seller;
 import Base.DBO.Shop;
+import Base.GetObjects;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class CreateRandomObjects {
@@ -15,9 +19,10 @@ public class CreateRandomObjects {
     static List<String> cites;
     static List<String> streets;
     static List<String> nameShops;
-
+    static Long currentDate;
 
     static {
+        currentDate = System.currentTimeMillis();
         allObjects = (int) (Math.random() * 10);
         names = Arrays.asList("Илья", "Андрей", "Василий", "Евгений", "Геннадий", "Максим", "Матвей");
         sunames = Arrays.asList("Лебедев", "Иванов", "Петров", "Сидоров", "Кечко", "Жук", "Мицкевич");
@@ -27,13 +32,13 @@ public class CreateRandomObjects {
         nameShops = Arrays.asList("ГИППО", "ЕВРООПТ", "КОМАРОВКА", "СИЛУЕТ", "ГАЛЕРЕЯ", "ГАЛЛИЛЕО", "СТОЛИЦА", "Р-к Ждановичи");
     }
 
-    public static List<Seller> createSellers(int random_num) {
-        int randomSelectNames = (int) (Math.random() * (names.size() + 1));
-        int randomSelectSurnames = (int) (Math.random() * (sunames.size() + 1));
-        int randomSelectMiddleNames = (int) (Math.random() * (middleNames.size() + 1));
-        double randomSelectSalary = (Math.random() * (50000 + 1));
-        List<Seller> list = new ArrayList<>();
-        for (int i = 0; i <= random_num; i++) {
+    public static Set<Seller> createSellers(int random_num) {
+        Set<Seller> list = new HashSet<>();
+        for (int i = 1; i <= random_num; i++) {
+            int randomSelectNames = (int) (Math.random() * (names.size()));
+            int randomSelectSurnames = (int) (Math.random() * (sunames.size()));
+            int randomSelectMiddleNames = (int) (Math.random() * (middleNames.size()));
+            double randomSelectSalary = (Math.random() * (50000 + 1));
             list.add(Seller.builder().name(names.get(randomSelectNames)).
                     surname(sunames.get(randomSelectSurnames)).
                     salary(randomSelectSalary).
@@ -47,32 +52,47 @@ public class CreateRandomObjects {
         List<Shop> shopList = new ArrayList<>();
         List<Address> address = createAddress(random_num);
         List<Date> dates = createDates(random_num);
-        double randomSelectProceeds = (Math.random() * (50000 + 1));
-        int randomSelectNameShops = (int) (Math.random() * (nameShops.size() + 1));
-        for (int i = 0; i <= random_num; i++) {
-            Address addressForDB = null;
-            for (Address address1 : address) {
-                addressForDB = address1;
+        for (int i = 1; i <= random_num; i++) {
+            double randomSelectProceeds = (Math.random() * (50000 + 1));
+            int randomSelectNameShops = (int) (Math.random() * (nameShops.size()));
+            String name = nameShops.get(randomSelectNameShops);
+            if (shopList.size() == nameShops.size()) {
+                continue;
+            }
+            if (shopList.stream().filter(Objects::nonNull).anyMatch(shop -> name.equals(shop.getNameShop()))) {
+                System.out.println("name : " + name);
+                randomSelectNameShops = (int) (Math.random() * (nameShops.size()));
+                String shopRandom = nameShops.get(randomSelectNameShops);
+                System.out.println("name2 : " + shopRandom);
+                while (shopList.stream().noneMatch(shop -> shopRandom.equals(shop.getNameShop()))) {
+                    BigDecimal bd = new BigDecimal(Double.toString(randomSelectProceeds));
+                    bd = bd.setScale(2, RoundingMode.HALF_UP);
+                    shopList.add(Shop.builder().nameShop(shopRandom).
+                            proceeds(bd.doubleValue()).
+                            createDate(dates.get(i - 1)).
+                            address(address.get(i - 1)).
+                            build());
+                }
+            } else {
+                BigDecimal bd;
+                bd = new BigDecimal(Double.toString(randomSelectProceeds)).
+                        setScale(2, RoundingMode.HALF_UP);
+                shopList.add(Shop.builder().nameShop(name).
+                        proceeds(bd.doubleValue()).
+                        createDate(dates.get(i - 1)).
+                        address(address.get(i - 1)).
+                        build());
             }
 
-            Date date = new Date();
-            for (Date date1 : dates) {
-                date = date1;
-            }
-            shopList.add(Shop.builder().nameShop(nameShops.get(randomSelectNameShops)).
-                    proceeds(randomSelectProceeds).
-                    createDate(date).
-                    address(addressForDB).
-                    build());
         }
         return shopList;
     }
 
     public static List<Address> createAddress(int random_num) {
         List<Address> addresses = new ArrayList<>();
-        int randomSelectCites = (int) (Math.random() * (cites.size() + 1));
-        int randomSelectStreets = (int) (Math.random() * (streets.size() + 1));
-        for (int i = 0; i <= random_num; i++) {
+        for (int i = 1; i <= random_num; i++) {
+            int randomSelectCites = (int) (Math.random() * (cites.size()));
+            int randomSelectStreets = (int) (Math.random() * (streets.size()));
             addresses.add(Address.builder().
                     city(cites.get(randomSelectCites)).
                     street(streets.get(randomSelectStreets)).
@@ -83,11 +103,8 @@ public class CreateRandomObjects {
 
     public static List<Date> createDates(int random_num) {
         List<Date> list = new ArrayList<>();
-        for (int i = 0; i <= random_num; i++) {
-            Date date = new Date();
-            long randomSelectProceeds = (long) (Math.random() * (1000000000 + 1));
-            date.setTime(randomSelectProceeds);
-            list.add(date);
+        for (int i = 1; i <= random_num; i++) {
+            list.add(new Date((long) (Math.random() * (currentDate + 1))));
         }
         return list;
     }

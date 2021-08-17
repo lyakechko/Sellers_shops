@@ -5,19 +5,20 @@
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
        http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
 
-    <persistence-unit name="item-manager-pu" transaction-type="JTA">
+    <persistence-unit name="item-manager-pu" transaction-type="RESOURCE_LOCAL">
         <class>Base.DBO.Seller</class>
         <class>Base.DBO.Shop</class>
+        <class>Base.DBO.Address</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
             <property name="javax.persistence.jdbc.url"
-                      value="jdbc:mysql://192.168.100.3:3306/test?serverTimezone=UTC"/>
+                      value="jdbc:mysql://localhost:3306/test?serverTimezone=UTC"/>
             <property name="javax.persistence.jdbc.user" value="root"/>
             <property name="javax.persistence.jdbc.password" value="Kechko194@"/>
-
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect"/>
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.hbm2ddl.auto" value="create"/>
+            <property name="Hibernate.connection.pool_size" value="10000" />
         </properties>
     </persistence-unit>
 </persistence>

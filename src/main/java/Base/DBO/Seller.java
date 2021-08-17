@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -29,4 +31,10 @@ public class Seller implements Serializable {
     private String middleName;
     @Column(name = "salary")
     private Double salary;
+    @ManyToMany
+    @JoinTable(
+            name = "shops_sellers",
+            joinColumns = @JoinColumn(name = "seller_id"),
+            inverseJoinColumns = @JoinColumn(name = "shop_id"))
+    private Set<Shop> shops;
 }
